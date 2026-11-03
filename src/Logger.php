@@ -4,128 +4,162 @@ declare(strict_types=1);
 
 namespace Tavaan\Engine\Log;
 
-use Tavaan\Core\Contracts\Config\RepositoryInterface as Config;
+use Tavaan\Engine\Log\Contracts\LoggerInterface;
+use Tavaan\Engine\Log\Contracts\HandlerInterface;
+use Tavaan\Engine\Log\LogLevel;
+use Tavaan\Engine\Log\LogRecord;
 
 /**
- * Logger — پیاده‌سازی اصلی موتور.
+ * Logger — یک کانال لاگ.
  *
- * @see \Tavaan\Engine\Log\Contracts\LoggerInterface
+ * @see docs/03-engines/log.md
  */
-final class Logger implements Contracts\LoggerInterface
+final class Logger implements LoggerInterface
 {
+    private LogLevel $minimumLevel = LogLevel::Debug;
+
     /**
-     * @param Config $config پیکربندی موتور
+     * @var list<HandlerInterface>
      */
+    private array $handlers = [];
+
+    /** @var array<string, mixed> */
+    private array $sharedContext = [];
+
+    /** @var array<string, mixed> */
+    private array $localContext = [];
+
     public function __construct(
-        private readonly Config $config,
+        private readonly string $channel = 'default',
     ) {
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function emergency(/* ... */): mixed
+    public function setMinimumLevel(LogLevel $level): self
     {
-        // TODO: پیاده‌سازی emergency مطابق مستندات (سند §3 API).
-        return null;
+        $this->minimumLevel = $level;
+        return $this;
+    }
+
+    public function getMinimumLevel(): LogLevel
+    {
+        return $this->minimumLevel;
+    }
+
+    public function addHandler(HandlerInterface $handler): self
+    {
+        $this->handlers[] = $handler;
+        return $this;
+    }
+
+    public function channel(string $name): self
+    {
+        $new = new self($name);
+        $new->minimumLevel = $this->minimumLevel;
+        $new->handlers = $this->handlers;
+        $new->sharedContext = $this->sharedContext;
+        return $new;
+    }
+
+    public function withContext(array $context): self
+    {
+        $new = clone $this;
+        $new->localContext = \array_merge($this->localContext, $context);
+        return $new;
+    }
+
+    public function shareContext(array $context): void
+    {
+        $this->sharedContext = \array_merge($this->sharedContext, $context);
+    }
+
+    public function withoutContext(): void
+    {
+        $this->sharedContext = [];
+        $this->localContext = [];
+    }
+
+    public function emergency(string $message, array $context = []): void
+    {
+        $this->log(LogLevel::Emergency, $message, $context);
+    }
+
+    public function alert(string $message, array $context = []): void
+    {
+        $this->log(LogLevel::Alert, $message, $context);
+    }
+
+    public function critical(string $message, array $context = []): void
+    {
+        $this->log(LogLevel::Critical, $message, $context);
+    }
+
+    public function error(string $message, array $context = []): void
+    {
+        $this->log(LogLevel::Error, $message, $context);
+    }
+
+    public function warning(string $message, array $context = []): void
+    {
+        $this->log(LogLevel::Warning, $message, $context);
+    }
+
+    public function notice(string $message, array $context = []): void
+    {
+        $this->log(LogLevel::Notice, $message, $context);
+    }
+
+    public function info(string $message, array $context = []): void
+    {
+        $this->log(LogLevel::Info, $message, $context);
+    }
+
+    public function debug(string $message, array $context = []): void
+    {
+        $this->log(LogLevel::Debug, $message, $context);
+    }
+
+    public function log(LogLevel $level, string $message, array $context = []): void
+    {
+        if (!$this->minimumLevel->includes($level)) {
+            return;
+        }
+        $mergedContext = \array_merge($this->sharedContext, $this->localContext, $context);
+        $record = new LogRecord(
+            timestamp: new \DateTimeImmutable(),
+            level: $level,
+            message: $message,
+            context: $mergedContext,
+            channel: $this->channel,
+        );
+        foreach ($this->handlers as $handler) {
+            $handler->handle($record);
+        }
+    }
+
+    public function flush(): void
+    {
+        foreach ($this->handlers as $handler) {
+            $handler->flush();
+        }
+    }
+
+    public function close(): void
+    {
+        foreach ($this->handlers as $handler) {
+            $handler->close();
+        }
     }
 
     /**
-     * {@inheritdoc}
+     * @return list<HandlerInterface>
      */
-    public function alert(/* ... */): mixed
+    public function handlers(): array
     {
-        // TODO: پیاده‌سازی alert مطابق مستندات (سند §3 API).
-        return null;
+        return $this->handlers;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function critical(/* ... */): mixed
+    public function getName(): string
     {
-        // TODO: پیاده‌سازی critical مطابق مستندات (سند §3 API).
-        return null;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function error(/* ... */): mixed
-    {
-        // TODO: پیاده‌سازی error مطابق مستندات (سند §3 API).
-        return null;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function warning(/* ... */): mixed
-    {
-        // TODO: پیاده‌سازی warning مطابق مستندات (سند §3 API).
-        return null;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function notice(/* ... */): mixed
-    {
-        // TODO: پیاده‌سازی notice مطابق مستندات (سند §3 API).
-        return null;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function info(/* ... */): mixed
-    {
-        // TODO: پیاده‌سازی info مطابق مستندات (سند §3 API).
-        return null;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function debug(/* ... */): mixed
-    {
-        // TODO: پیاده‌سازی debug مطابق مستندات (سند §3 API).
-        return null;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function log(/* ... */): mixed
-    {
-        // TODO: پیاده‌سازی log مطابق مستندات (سند §3 API).
-        return null;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function withContext(/* ... */): mixed
-    {
-        // TODO: پیاده‌سازی withContext مطابق مستندات (سند §3 API).
-        return null;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function shareContext(/* ... */): mixed
-    {
-        // TODO: پیاده‌سازی shareContext مطابق مستندات (سند §3 API).
-        return null;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function withoutContext(/* ... */): mixed
-    {
-        // TODO: پیاده‌سازی withoutContext مطابق مستندات (سند §3 API).
-        return null;
+        return $this->channel;
     }
 }

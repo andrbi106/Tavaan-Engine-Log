@@ -4,95 +4,29 @@ declare(strict_types=1);
 
 namespace Tavaan\Engine\Log\Contracts;
 
+use Tavaan\Engine\Log\LogRecord;
+use Tavaan\Engine\Log\LogLevel;
+
 /**
  * قرارداد Logger.
  *
- * @see \Tavaan\Engine\Log\Logger
  * @api 1.0
  */
 interface LoggerInterface
 {
-    /**
-     * متد emergency.
-     *
-     * @return mixed
-     */
-    public function emergency(/* ... */): mixed;
+    public function emergency(string $message, array $context = []): void;
+    public function alert(string $message, array $context = []): void;
+    public function critical(string $message, array $context = []): void;
+    public function error(string $message, array $context = []): void;
+    public function warning(string $message, array $context = []): void;
+    public function notice(string $message, array $context = []): void;
+    public function info(string $message, array $context = []): void;
+    public function debug(string $message, array $context = []): void;
+    public function log(LogLevel $level, string $message, array $context = []): void;
 
-    /**
-     * متد alert.
-     *
-     * @return mixed
-     */
-    public function alert(/* ... */): mixed;
-
-    /**
-     * متد critical.
-     *
-     * @return mixed
-     */
-    public function critical(/* ... */): mixed;
-
-    /**
-     * متد error.
-     *
-     * @return mixed
-     */
-    public function error(/* ... */): mixed;
-
-    /**
-     * متد warning.
-     *
-     * @return mixed
-     */
-    public function warning(/* ... */): mixed;
-
-    /**
-     * متد notice.
-     *
-     * @return mixed
-     */
-    public function notice(/* ... */): mixed;
-
-    /**
-     * متد info.
-     *
-     * @return mixed
-     */
-    public function info(/* ... */): mixed;
-
-    /**
-     * متد debug.
-     *
-     * @return mixed
-     */
-    public function debug(/* ... */): mixed;
-
-    /**
-     * متد log.
-     *
-     * @return mixed
-     */
-    public function log(/* ... */): mixed;
-
-    /**
-     * متد withContext.
-     *
-     * @return mixed
-     */
-    public function withContext(/* ... */): mixed;
-
-    /**
-     * متد shareContext.
-     *
-     * @return mixed
-     */
-    public function shareContext(/* ... */): mixed;
-
-    /**
-     * متد withoutContext.
-     *
-     * @return mixed
-     */
-    public function withoutContext(/* ... */): mixed;
+    public function channel(string $name): self;
+    public function withContext(array $context): self;
+    public function shareContext(array $context): void;
+    public function withoutContext(): void;
+    public function flush(): void;
 }

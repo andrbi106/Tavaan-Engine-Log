@@ -2,35 +2,41 @@
 
 declare(strict_types=1);
 
-/*|--------------------------------------------------------------------------
- | Log Engine Configuration
- |--------------------------------------------------------------------------
- |
- | پیکربندی موتور log — همهٔ کلیدهای مستندشده در `docs/03-engines/log.md` بخش «پیکربندی».
- |
- |@see https://github.com/Derogaramin/Tavaan-Doc/blob/main/docs/03-engines/log.md
- */
-
 return [
-    /*| پیش‌فرض موتور (driver/store یا حالت فعال) */
-    'default' => env('LOG_DEFAULT', 'default'),
+    /*| سطح پیش‌فرض لاگ */
+    'level' => \getenv('TVN_LOG_LEVEL') !== false ? \getenv('TVN_LOG_LEVEL') : 'debug',
 
-    /*| کلید کش (در صورت استفاده) */
-    'prefix' => env('LOG_PREFIX', 'log:'),
+    /*| کانال پیش‌فرض */
+    'default' => \getenv('TVN_LOG_CHANNEL') !== false ? \getenv('TVN_LOG_CHANNEL') : 'default',
 
-    /*| تنظیمات لاگ */
-    'log' => [
-        'channel' => env('LOG_LOG_CHANNEL', 'log'),
+    /*| Handlerها */
+    'handlers' => [
+        ['type' => 'stdout', 'format' => 'line'],
+        [
+            'type' => 'file',
+            'path' => \getenv('TVN_LOG_FILE') !== false ? \getenv('TVN_LOG_FILE') : 'storage/logs/app.log',
+            'format' => \getenv('TVN_LOG_FORMAT') !== false ? \getenv('TVN_LOG_FORMAT') : 'json',
+            'append' => true,
+        ],
     ],
 
-    /*| Facade */
-    'facade' => [
-        'name' => 'Log',
-        'accessor' => 'log',
+    /*| masking — پنهان‌کردن کلیدهای حساس در context */
+    'mask_keys' => ['password', 'token', 'api_key', 'secret', 'credit_card'],
+
+    /*| چرخش فایل */
+    'rotation' => [
+        'enabled' => \getenv('TVN_LOG_ROTATE') !== false
+            ? \filter_var(\getenv('TVN_LOG_ROTATE'), \FILTER_VALIDATE_BOOL)
+            : true,
+        'max_files' => 7,  // روز
+        'max_size_mb' => 100,
     ],
 
-    /*| سایر کلیدها (طبق مستندات) */
-    'options' => [
-        // TODO: کلیدهای اضافی طبق سند §۶ (پیکربندی)
+    /*| buffering */
+    'buffer' => [
+        'enabled' => \getenv('TVN_LOG_BUFFER') !== false
+            ? \filter_var(\getenv('TVN_LOG_BUFFER'), \FILTER_VALIDATE_BOOL)
+            : false,
+        'size' => 100,
     ],
 ];

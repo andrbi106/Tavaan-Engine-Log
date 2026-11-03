@@ -2,9 +2,8 @@
 
 declare(strict_types=1);
 
-/*| پیام‌های en برای موتور log */
-
 return [
-    'error_default' => 'Unknown error (log)',
-    'not_configured' => 'Engine not configured (log)',
+    'error_open_file' => 'Failed to open log file: {0}',
+    'error_write' => 'Failed to write log.',
+    'channel_default' => 'default',
 ];

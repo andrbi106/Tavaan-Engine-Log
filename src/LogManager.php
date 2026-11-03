@@ -4,74 +4,154 @@ declare(strict_types=1);
 
 namespace Tavaan\Engine\Log;
 
-use Tavaan\Core\Contracts\Config\RepositoryInterface as Config;
+use Tavaan\Engine\Log\Contracts\LoggerInterface;
+use Tavaan\Engine\Log\Contracts\HandlerInterface;
+use Tavaan\Engine\Log\Handlers\FileHandler;
+use Tavaan\Engine\Log\Handlers\StreamHandler;
+use Tavaan\Engine\Log\Formatters\JsonFormatter;
+use Tavaan\Engine\Log\Formatters\LineFormatter;
+use Tavaan\Engine\Log\LogLevel;
 
 /**
- * LogManager — پیاده‌سازی اصلی موتور.
- *
- * @see \Tavaan\Engine\Log\Contracts\LogManagerInterface
+ * LogManager — مدیریت چندین کانال لاگ.
  */
-final class LogManager implements Contracts\LogManagerInterface
+final class LogManager implements LoggerInterface
 {
     /**
-     * @param Config $config پیکربندی موتور
+     * @var array<string, Logger>
+     */
+    private array $loggers = [];
+
+    private Logger $default;
+
+    /**
+     * @param array<string, mixed> $config
      */
     public function __construct(
-        private readonly Config $config,
+        private readonly array $config = [],
     ) {
+        $this->default = $this->createLogger($this->config['default'] ?? 'default');
+    }
+
+    public function channel(string $name): LoggerInterface
+    {
+        if (!isset($this->loggers[$name])) {
+            $this->loggers[$name] = $this->createLogger($name);
+        }
+        return $this->loggers[$name];
+    }
+
+    public function emergency(string $message, array $context = []): void
+    {
+        $this->default->emergency($message, $context);
+    }
+
+    public function alert(string $message, array $context = []): void
+    {
+        $this->default->alert($message, $context);
+    }
+
+    public function critical(string $message, array $context = []): void
+    {
+        $this->default->critical($message, $context);
+    }
+
+    public function error(string $message, array $context = []): void
+    {
+        $this->default->error($message, $context);
+    }
+
+    public function warning(string $message, array $context = []): void
+    {
+        $this->default->warning($message, $context);
+    }
+
+    public function notice(string $message, array $context = []): void
+    {
+        $this->default->notice($message, $context);
+    }
+
+    public function info(string $message, array $context = []): void
+    {
+        $this->default->info($message, $context);
+    }
+
+    public function debug(string $message, array $context = []): void
+    {
+        $this->default->debug($message, $context);
+    }
+
+    public function log(LogLevel $level, string $message, array $context = []): void
+    {
+        $this->default->log($level, $message, $context);
+    }
+
+    public function withContext(array $context): self
+    {
+        $new = clone $this;
+        $new->default = $this->default->withContext($context);
+        return $new;
+    }
+
+    public function shareContext(array $context): void
+    {
+        $this->default->shareContext($context);
+    }
+
+    public function withoutContext(): void
+    {
+        $this->default->withoutContext();
+    }
+
+    public function flush(): void
+    {
+        $this->default->flush();
+    }
+
+    public function getDefaultLogger(): Logger
+    {
+        return $this->default;
+    }
+
+    private function createLogger(string $name): Logger
+    {
+        $logger = new Logger($name);
+        $logger->setMinimumLevel($this->parseLevel($this->config['level'] ?? 'debug'));
+        // Add default handler (stdout or file)
+        $handlerConfig = $this->config['handlers'] ?? [
+            ['type' => 'stdout', 'format' => 'line'],
+        ];
+        foreach ($handlerConfig as $cfg) {
+            $handler = $this->createHandler($cfg, $name);
+            if ($handler !== null) {
+                $logger->addHandler($handler);
+            }
+        }
+        return $logger;
+    }
+
+    private function parseLevel(string $level): LogLevel
+    {
+        return LogLevel::fromString($level);
     }
 
     /**
-     * {@inheritdoc}
+     * @param array<string, mixed> $cfg
      */
-    public function channel(/* ... */): mixed
+    private function createHandler(array $cfg, string $channel): ?HandlerInterface
     {
-        // TODO: پیاده‌سازی channel مطابق مستندات (سند §3 API).
-        return null;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function stack(/* ... */): mixed
-    {
-        // TODO: پیاده‌سازی stack مطابق مستندات (سند §3 API).
-        return null;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function driver(/* ... */): mixed
-    {
-        // TODO: پیاده‌سازی driver مطابق مستندات (سند §3 API).
-        return null;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function extend(/* ... */): mixed
-    {
-        // TODO: پیاده‌سازی extend مطابق مستندات (سند §3 API).
-        return null;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function flush(/* ... */): mixed
-    {
-        // TODO: پیاده‌سازی flush مطابق مستندات (سند §3 API).
-        return null;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getChannels(/* ... */): mixed
-    {
-        // TODO: پیاده‌سازی getChannels مطابق مستندات (سند §3 API).
-        return null;
+        $type = $cfg['type'] ?? 'stdout';
+        $format = $cfg['format'] ?? 'line';
+        $formatter = $format === 'json' ? new JsonFormatter() : new LineFormatter();
+        return match ($type) {
+            'stdout' => StreamHandler::toStdout($formatter),
+            'stderr' => StreamHandler::toStderr($formatter),
+            'file' => new FileHandler(
+                $cfg['path'] ?? "/tmp/{$channel}.log",
+                $formatter,
+                $cfg['append'] ?? true,
+            ),
+            default => null,
+        };
     }
 }

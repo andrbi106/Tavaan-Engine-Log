@@ -2,9 +2,8 @@
 
 declare(strict_types=1);
 
-/*| پیام‌های fa برای موتور log */
-
 return [
-    'error_default' => 'خطای ناشناخته (log)',
-    'not_configured' => 'موتور پیکربندی نشده است (log)',
+    'error_open_file' => 'خطا در باز کردن فایل لاگ: {0}',
+    'error_write' => 'خطا در نوشتن لاگ.',
+    'channel_default' => 'پیش‌فرض',
 ];
