@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Tavaan\Engine\Log\Handlers;
 
-use Tavaan\Core\Contracts\Log\HandlerInterface;
+use Tavaan\Engine\Log\Contracts\HandlerInterface;
 
 /**
  * تَوان | Tavaan — Log

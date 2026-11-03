@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Tavaan\Engine\Log\Processors;
 
-use Tavaan\Core\Contracts\Log\ProcessorInterface;
+use Tavaan\Engine\Log\Contracts\ProcessorInterface;
 use Tavaan\Core\Facade\Facade;
 use Tavaan\Engine\Log\Logger;
 use Tavaan\Engine\Log\LogManager;

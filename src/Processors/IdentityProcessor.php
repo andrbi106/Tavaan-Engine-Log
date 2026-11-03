@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Tavaan\Engine\Log\Processors;
 
 use Tavaan\Core\Context\IdentityContext;
-use Tavaan\Core\Contracts\Log\ProcessorInterface;
+use Tavaan\Engine\Log\Contracts\ProcessorInterface;
 use Tavaan\Engine\Log\LogRecord;
 
 /**
