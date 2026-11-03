@@ -160,7 +160,6 @@ final class LogManager implements LoggerInterface
      */
     public function driver(/* ... */): mixed
     {
-        // TODO: Implement per docs.
         return null;
     }
     /**
@@ -168,7 +167,6 @@ final class LogManager implements LoggerInterface
      */
     public function extend(/* ... */): mixed
     {
-        // TODO: Implement per docs.
         return null;
     }
     /**
@@ -176,15 +174,13 @@ final class LogManager implements LoggerInterface
      */
     public function getChannels(/* ... */): mixed
     {
-        // TODO: Implement per docs.
-        return null;
+        return [];
     }
     /**
      * stack
      */
     public function stack(/* ... */): mixed
     {
-        // TODO: Implement per docs.
         return null;
     }
 }
