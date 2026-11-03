@@ -158,28 +158,28 @@ final class LogManager implements LoggerInterface
     /**
      * driver
      */
-    public function driver(/* ... */): mixed
+    public function driver()
     {
         return null;
     }
     /**
      * extend
      */
-    public function extend(/* ... */): mixed
+    public function extend()
     {
         return null;
     }
     /**
      * getChannels
      */
-    public function getChannels(/* ... */): mixed
+    public function getChannels()
     {
-        return [];
+        return $this->config["channels"] ?? null;
     }
     /**
      * stack
      */
-    public function stack(/* ... */): mixed
+    public function stack()
     {
         return null;
     }
