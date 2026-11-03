@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Tavaan\Engine\Log\Tests\Feature;
 
-use PHPUnit\Framework\TestCase;
+use Tavaan\Testing\TestCase;
 use Tavaan\Engine\Log\LogManager;
 use Tavaan\Engine\Log\Logger;
 use Tavaan\Engine\Log\LogLevel;
