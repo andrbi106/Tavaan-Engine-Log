@@ -154,4 +154,37 @@ final class LogManager implements LoggerInterface
             default => null,
         };
     }
+
+    /**
+     * driver
+     */
+    public function driver(/* ... */): mixed
+    {
+        // TODO: Implement per docs.
+        return null;
+    }
+    /**
+     * extend
+     */
+    public function extend(/* ... */): mixed
+    {
+        // TODO: Implement per docs.
+        return null;
+    }
+    /**
+     * getChannels
+     */
+    public function getChannels(/* ... */): mixed
+    {
+        // TODO: Implement per docs.
+        return null;
+    }
+    /**
+     * stack
+     */
+    public function stack(/* ... */): mixed
+    {
+        // TODO: Implement per docs.
+        return null;
+    }
 }
