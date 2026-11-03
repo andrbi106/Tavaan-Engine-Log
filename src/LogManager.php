@@ -156,18 +156,24 @@ final class LogManager implements LoggerInterface
     }
 
     /**
-     * driver
+     * driver — return named logger (defaults to default channel).
      */
-    public function driver()
+    public function driver(?string $name = null): LoggerInterface
     {
-        return null;
+        if ($name === null) {
+            return $this->default;
+        }
+        return $this->channel($name);
     }
     /**
-     * extend
+     * extend — register a custom driver creator.
+     * @param string $name
+     * @param callable(string, array): LoggerInterface $callback
      */
-    public function extend()
+    public function extend(string $name, callable $callback): self
     {
-        return null;
+        $this->customCreators[$name] = $callback;
+        return $this;
     }
     /**
      * getChannels
@@ -177,10 +183,61 @@ final class LogManager implements LoggerInterface
         return $this->config["channels"] ?? null;
     }
     /**
-     * stack
+     * stack — create a stacked logger that writes to multiple channels.
+     * @param array<int, string> $channels
      */
-    public function stack()
+    public function stack(array $channels, string $name = 'stack'): LoggerInterface
     {
-        return null;
+        $loggers = [];
+        foreach ($channels as $channel) {
+            $loggers[] = $this->channel($channel);
+        }
+        return new class($loggers, $name) implements LoggerInterface {
+            public function __construct(private array $loggers, private string $name) {}
+
+            public function emergency(string $message, array $context = []): void
+            {
+                foreach ($this->loggers as $logger) { $logger->emergency($message, $context); }
+            }
+            public function alert(string $message, array $context = []): void
+            {
+                foreach ($this->loggers as $logger) { $logger->alert($message, $context); }
+            }
+            public function critical(string $message, array $context = []): void
+            {
+                foreach ($this->loggers as $logger) { $logger->critical($message, $context); }
+            }
+            public function error(string $message, array $context = []): void
+            {
+                foreach ($this->loggers as $logger) { $logger->error($message, $context); }
+            }
+            public function warning(string $message, array $context = []): void
+            {
+                foreach ($this->loggers as $logger) { $logger->warning($message, $context); }
+            }
+            public function notice(string $message, array $context = []): void
+            {
+                foreach ($this->loggers as $logger) { $logger->notice($message, $context); }
+            }
+            public function info(string $message, array $context = []): void
+            {
+                foreach ($this->loggers as $logger) { $logger->info($message, $context); }
+            }
+            public function debug(string $message, array $context = []): void
+            {
+                foreach ($this->loggers as $logger) { $logger->debug($message, $context); }
+            }
+            public function log(LogLevel $level, string $message, array $context = []): void
+            {
+                foreach ($this->loggers as $logger) { $logger->log($level, $message, $context); }
+            }
+            public function withContext(array $context): self { return $this; }
+            public function shareContext(array $context): void {}
+            public function withoutContext(): void {}
+            public function flush(): void
+            {
+                foreach ($this->loggers as $logger) { $logger->flush(); }
+            }
+        };
     }
 }
