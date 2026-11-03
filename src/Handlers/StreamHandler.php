@@ -28,7 +28,8 @@ final class StreamHandler implements HandlerInterface
 
     public function handle(LogRecord $record): void
     {
-        $line = $this->formatter->format($record) . "\n";
+        $line = $this->formatter->format($record) . "
+";
         \fwrite($this->stream, $line);
     }
 

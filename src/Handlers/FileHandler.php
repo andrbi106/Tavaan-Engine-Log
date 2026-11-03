@@ -26,7 +26,8 @@ final class FileHandler implements HandlerInterface
     public function handle(LogRecord $record): void
     {
         $this->ensureOpen();
-        $line = $this->formatter->format($record) . "\n";
+        $line = $this->formatter->format($record) . "
+";
         \fwrite($this->fp, $line);
     }
 
