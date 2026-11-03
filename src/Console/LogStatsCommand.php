@@ -7,18 +7,18 @@ namespace Tavaan\Engine\Log\Console;
 use Tavaan\Core\Contracts\Console\CommandInterface;
 
 /**
- * log:tail command.
+ * log:stats command.
  */
-final class Log_tailCommand implements CommandInterface
+final class LogStatsCommand implements CommandInterface
 {
     public function name(): string
     {
-        return 'log:tail';
+        return 'log:stats';
     }
 
     public function description(): string
     {
-        return 'Run log:tail (TODO: fill description).';
+        return 'Run log:stats (TODO: fill description).';
     }
 
     public function handle(array $args = []): int

@@ -7,18 +7,18 @@ namespace Tavaan\Engine\Log\Console;
 use Tavaan\Core\Contracts\Console\CommandInterface;
 
 /**
- * log:clear command.
+ * log:tail command.
  */
-final class Log_clearCommand implements CommandInterface
+final class LogTailCommand implements CommandInterface
 {
     public function name(): string
     {
-        return 'log:clear';
+        return 'log:tail';
     }
 
     public function description(): string
     {
-        return 'Run log:clear (TODO: fill description).';
+        return 'Run log:tail (TODO: fill description).';
     }
 
     public function handle(array $args = []): int
