@@ -15,7 +15,9 @@
   ],
   "requires": {
     "php": ">=8.2",
-    "engines": ["config"]
+    "engines": [
+      "config"
+    ]
   },
   "config": {
     "file": "config/log.php",
@@ -27,5 +29,6 @@
     "name": "Log",
     "accessor": "log"
   },
-  "docs": "docs/03-engines/log.md"
+  "docs": "docs/03-engines/log.md",
+  "class": "Tavaan\\Engine\\Log\\LogEngine"
 }
